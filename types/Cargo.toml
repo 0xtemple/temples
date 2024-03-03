@@ -1,0 +1,20 @@
+[package]
+name = "temple-types"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gstd = { workspace = true }
+parity-scale-codec = { workspace = true }
+crypto-bigint = { version = "0.5.3", features = [ "serde" ] }
+hex = "0.4.3"
+itertools = "0.10.3"
+serde = { version = "1.0.192", features = [ "derive" ] }
+serde_json = { version = "1.0", features = [ "arbitrary_precision" ] }
+serde_with = "2.3.1"
+strum = "0.25"
+strum_macros = "0.25"
+thiserror = "1.0.32"
+starknet = "0.9.0"
