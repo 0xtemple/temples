@@ -8,9 +8,9 @@ gstd = { workspace = true }
 gmeta = { workspace = true }
 test-metadata = { path = "metadata" }
 test-components = { path = "components" }
-temple-storage = { path = "../storage" }
-temple-types = { path = "../types" }
-scale-info = { version = "2", default-features = false }
+temple-storage = { workspace = true }
+temple-types = { workspace = true }
+scale-info = { workspace = true }
 
 [dev-dependencies]
 gtest = { workspace = true }

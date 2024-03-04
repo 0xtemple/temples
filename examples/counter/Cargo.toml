@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 gstd = { workspace = true }
 gmeta = { workspace = true }
+temple-storage = { workspace = true }
+temple-types = { workspace = true }
 counter-metadata = { path = "metadata" }
 counter-components = { path = "components" }
 counter-systems = { path = "systems" }
@@ -15,4 +17,4 @@ gtest = { workspace = true }
 
 [build-dependencies]
 counter-metadata = { path = "metadata" }
-gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+gear-wasm-builder = { workspace = true }

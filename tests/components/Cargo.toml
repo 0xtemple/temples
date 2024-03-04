@@ -7,7 +7,7 @@ edition = "2021"
 gstd = { workspace = true }
 gmeta = { workspace = true }
 parity-scale-codec = { workspace = true }
-temple-storage = { path = "../../storage" }
-temple-types = { path = "../../types" }
-scale-info = { version = "2", default-features = false }
-lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
+temple-storage = { workspace = true }
+temple-types = { workspace = true }
+scale-info = { workspace = true }
+lazy_static = { workspace = true }

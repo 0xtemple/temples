@@ -8,13 +8,16 @@ edition = "2021"
 [workspace]
 resolver = "2"
 members = [
-    "types",
-    "storage",
+    "crates/types",
+    "crates/storage",
     "examples/counter",
     "tests",
 ]
 
 [workspace.dependencies]
+temple-storage = { path = "crates/storage" }
+temple-types = { path = "crates/types" }
+
 gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
 gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
 gtest = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
@@ -22,4 +25,5 @@ gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1
 sp-core-hashing = { version = "10", default-features = false }
 parity-scale-codec = { version = "3", default-features = false }
 scale-info = { version = "2", default-features = false }
+lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 
