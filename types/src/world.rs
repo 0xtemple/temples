@@ -1,5 +1,7 @@
 use crate::component::ComponentMetadata;
-use std::collections::HashMap;
+use gstd::collections::HashMap;
+use gstd::String;
+use gstd::ToString;
 
 /// Represents the metadata of a World
 #[derive(Debug, Clone, Default)]
@@ -25,5 +27,10 @@ impl WorldMetadata {
     /// Retrieves the metadata of a entity.
     pub fn component(&self, name: impl AsRef<str>) -> Option<&ComponentMetadata> {
         self.components.get(name.as_ref())
+    }
+
+    /// Retrieves the metadata of a entity.
+    pub fn register_component(&mut self, name: &String, metadata: &ComponentMetadata) {
+        self.components.insert(name.to_string(), metadata.clone());
     }
 }

@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
+use gstd::String;
 
 /// Represents a system's entity dependency.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Dependency {
     /// Name of the entity.
     pub name: String,

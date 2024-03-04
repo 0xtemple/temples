@@ -1,5 +1,4 @@
-use crate::component::Struct;
-use gstd::ActorId;
+use gstd::{ActorId, Decode, Encode, String, Vec};
 
 #[derive(Clone, Debug)]
 pub struct WorldSpawned {
@@ -7,24 +6,26 @@ pub struct WorldSpawned {
 }
 
 /// The event emitted when a entity is registered to a World.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Encode, Decode)]
 pub struct ComponentRegistered {
-    pub name: String,
-    pub schema: Struct,
+    pub component_id: [u8; 32],
+    pub key_names: Vec<String>,
+    pub key_types: Vec<String>,
+    pub value_names: Vec<String>,
+    pub value_types: Vec<String>,
 }
 
 /// The event emmitted when a entity value of an entity is set.
-#[derive(Clone, Debug)]
-pub struct StoreSetRecord {
-    pub table_id: Vec<u8>,
-    pub key_names: Vec<String>,
-    pub key_types: Vec<String>,
-    pub key_values: Vec<u8>,
+#[derive(Clone, Debug, Encode, Decode)]
+pub struct ComponentSetRecord {
+    pub component_id: [u8; 32],
+    pub key: Vec<u8>,
+    pub value: Vec<u8>,
 }
 
 /// The event emmitted when a entity is deleted from an entity.
-#[derive(Clone, Debug)]
-pub struct StoreDelRecord {
-    pub table_id: Vec<u8>,
-    pub keys: Vec<u8>,
+#[derive(Clone, Debug, Encode, Decode)]
+pub struct ComponentDelRecord {
+    pub component_id: [u8; 32],
+    pub key: Vec<u8>,
 }
