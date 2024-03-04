@@ -1,0 +1,20 @@
+[package]
+name = "temple-tests"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gstd = { workspace = true }
+gmeta = { workspace = true }
+test-metadata = { path = "metadata" }
+test-components = { path = "components" }
+temple-storage = { path = "../storage" }
+temple-types = { path = "../types" }
+scale-info = { version = "2", default-features = false }
+
+[dev-dependencies]
+gtest = { workspace = true }
+
+[build-dependencies]
+test-metadata = { path = "metadata" }
+gear-wasm-builder = { workspace = true }

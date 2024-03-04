@@ -9,14 +9,17 @@ edition = "2021"
 resolver = "2"
 members = [
     "types",
+    "storage",
+    "examples/counter",
+    "tests",
 ]
 
 [workspace.dependencies]
 gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
 gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
+gtest = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
 sp-core-hashing = { version = "10", default-features = false }
 parity-scale-codec = { version = "3", default-features = false }
 scale-info = { version = "2", default-features = false }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.107"
 
