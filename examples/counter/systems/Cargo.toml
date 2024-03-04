@@ -1,0 +1,9 @@
+[package]
+name = "counter-systems"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gstd = { workspace = true }
+gmeta = { workspace = true }
+counter-components = { path = "../components" }
