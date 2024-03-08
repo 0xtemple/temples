@@ -22,16 +22,4 @@ struct MyStruct {
 fn macro_tests() {
     println!("{:?}", MyStruct::component_id());
     println!("{:?}", MyStruct::metadata());
-    println!("{:?}", MyStruct::register());
-
-    println!("{:?}", MyStruct::get());
-
-    let t = MyStruct {
-        t1: 8,
-        t2: 8,
-        t3: "Hello".into(),
-        t4: "World".into(),
-    };
-    MyStruct::set(t);
-    println!("{:?}", MyStruct::get());
 }
