@@ -1,7 +1,7 @@
 #![no_std]
 
 pub use counter_components::counter::Counter;
-use counter_metadata::{StateQuery, StateReply, SystemAction};
+use counter_world::metadata::{StateQuery, StateReply, SystemAction};
 use gstd::msg;
 
 #[no_mangle]
@@ -26,5 +26,6 @@ extern fn state() {
             msg::reply(StateReply::CurrentNumber(counter.value), 0)
                 .expect("Unable to share the state");
         }
+        _ => {}
     }
 }

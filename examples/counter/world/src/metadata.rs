@@ -1,5 +1,3 @@
-#![no_std]
-
 use gmeta::{In, InOut, Metadata};
 use gstd::prelude::*;
 
@@ -18,6 +16,7 @@ impl Metadata for CounterMetadata {
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
 pub enum StateQuery {
+    WorldApi,
     GetCurrentNumber,
 }
 

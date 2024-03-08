@@ -1,4 +1,4 @@
-use counter_metadata::SystemAction;
+use counter_world::metadata::SystemAction;
 use gtest::{Program, System};
 
 #[test]
