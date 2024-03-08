@@ -8,5 +8,6 @@ gstd = { workspace = true }
 gmeta = { workspace = true }
 parity-scale-codec = { workspace = true }
 temple-storage = { workspace = true }
+temple-derive = { workspace = true }
 temple-types = { workspace = true }
 lazy_static = { workspace = true }

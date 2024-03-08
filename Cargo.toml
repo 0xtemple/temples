@@ -18,6 +18,7 @@ members = [
 [workspace.dependencies]
 temple-storage = { path = "crates/storage" }
 temple-types = { path = "crates/types" }
+temple-derive = { path = "crates/derive" }
 
 gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
 gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }

@@ -1,6 +1,8 @@
-use counter_components::counter::CounterComponent;
+use counter_components::counter::Counter;
 
 pub fn add_number() {
-    let current_number = CounterComponent.get();
-    CounterComponent.set(current_number);
+    let counter = Counter::get();
+    Counter::set(Counter {
+        value: counter.value + 1,
+    });
 }

@@ -1,12 +1,12 @@
 #![no_std]
 
-pub use counter_components::counter::CounterComponent;
+pub use counter_components::counter::Counter;
 use counter_metadata::{StateQuery, StateReply, SystemAction};
 use gstd::msg;
 
 #[no_mangle]
 extern fn init() {
-    CounterComponent.register();
+    Counter::register();
 }
 
 #[no_mangle]
@@ -22,7 +22,8 @@ extern fn state() {
     let query: StateQuery = msg::load().expect("Unable to load the state query");
     match query {
         StateQuery::GetCurrentNumber => {
-            msg::reply(StateReply::CurrentNumber(CounterComponent.get()), 0)
+            let counter = Counter::get();
+            msg::reply(StateReply::CurrentNumber(counter.value), 0)
                 .expect("Unable to share the state");
         }
     }

@@ -1,11 +1,11 @@
-#![allow(non_upper_case_globals)]
+use gstd::vec;
+use gstd::ToString;
+use gstd::Vec;
+use gstd::{Decode, Encode};
+use temple_derive::StorageValue;
+use temple_types::component::ComponentMetadata;
 
-use lazy_static::lazy_static;
-use temple_storage::value::StorageValue;
-
-const COMPONENT_ID: [u8; 32] = [8; 32];
-
-lazy_static! {
-    pub static ref CounterComponent: StorageValue<u128> =
-        StorageValue::new("Counter".into(), COMPONENT_ID);
+#[derive(StorageValue, Encode, Decode, Default, Debug)]
+pub struct Counter {
+    pub value: u128,
 }
