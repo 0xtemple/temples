@@ -8,6 +8,7 @@ edition = "2021"
 [workspace]
 resolver = "2"
 members = [
+    "crates/derive",
     "crates/types",
     "crates/storage",
     "examples/counter",
