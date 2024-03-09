@@ -1,12 +1,12 @@
-use gstd::{Decode, Encode, String, Vec};
+use gstd::{Decode, Encode, String, TypeInfo, Vec};
 
-#[derive(Debug, Clone, Encode, Decode)]
+#[derive(Debug, Clone, Encode, Decode, TypeInfo)]
 pub enum ComponentType {
     Onchain,
     Offchain,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Encode, Decode, TypeInfo)]
 pub struct ComponentMetadata {
     pub name: String,
     pub key_names: Vec<String>,

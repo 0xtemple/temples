@@ -6,6 +6,7 @@ use gstd::msg;
 
 #[no_mangle]
 extern fn init() {
+    temple_storage::world::init("Counter".into(), "Counter Example".into());
     Counter::register();
 }
 
@@ -21,11 +22,14 @@ extern fn handle() {
 extern fn state() {
     let query: StateQuery = msg::load().expect("Unable to load the state query");
     match query {
+        StateQuery::WorldMetadata => {
+            let world = temple_storage::world::get();
+            msg::reply(StateReply::WorldMetadata(world), 0).expect("Unable to share the state");
+        }
         StateQuery::GetCurrentNumber => {
             let counter = Counter::get();
             msg::reply(StateReply::CurrentNumber(counter.value), 0)
                 .expect("Unable to share the state");
         }
-        _ => {}
     }
 }

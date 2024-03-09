@@ -1,27 +1,28 @@
 use crate::component::ComponentMetadata;
-use gstd::collections::HashMap;
-use gstd::String;
+use alloc::borrow::ToOwned;
+use gstd::collections::BTreeMap;
 use gstd::ToString;
+use gstd::{Decode, Encode, String, TypeInfo};
 
 /// Represents the metadata of a World
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Encode, Decode, Default, TypeInfo)]
 pub struct WorldMetadata {
     pub name: Option<String>,
     pub description: Option<String>,
     pub cover_uri: Option<String>,
     pub icon_uri: Option<String>,
     pub website: Option<String>,
-    pub socials: Option<HashMap<String, String>>,
-    pub components: HashMap<String, ComponentMetadata>,
+    pub socials: Option<BTreeMap<String, String>>,
+    pub components: BTreeMap<String, ComponentMetadata>,
 }
 
 impl WorldMetadata {
-    pub fn name(&self) -> Option<&str> {
-        self.name.as_deref()
+    pub fn name(&self) -> Option<String> {
+        self.name.to_owned()
     }
 
-    pub fn description(&self) -> Option<&str> {
-        self.description.as_deref()
+    pub fn description(&self) -> Option<String> {
+        self.description.to_owned()
     }
 
     /// Retrieves the metadata of a entity.

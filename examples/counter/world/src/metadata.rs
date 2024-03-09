@@ -1,5 +1,6 @@
 use gmeta::{In, InOut, Metadata};
-use gstd::prelude::*;
+use gstd::{Decode, Encode, TypeInfo};
+use temple_types::world::WorldMetadata;
 
 pub struct CounterMetadata;
 
@@ -16,14 +17,15 @@ impl Metadata for CounterMetadata {
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
 pub enum StateQuery {
-    WorldApi,
+    WorldMetadata,
     GetCurrentNumber,
 }
 
-#[derive(Encode, Decode, TypeInfo, Debug)]
+#[derive(Encode, Decode, TypeInfo)]
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
 pub enum StateReply {
+    WorldMetadata(WorldMetadata),
     CurrentNumber(u128),
 }
 
