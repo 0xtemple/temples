@@ -34,4 +34,7 @@ CMap.muate(0, |v| { *v = 100 });
 ## NexCore
 
 The goal of NexCore is to make it easy for developers to build and extend on-chain applications. To enable this new way of building on-chain, we created NexCore: a smart contract framework built on top of the Schema.
+<img width="1289" alt="image" src="https://github.com/0xtemple/temples/assets/111047493/075f8e21-4cf5-45a8-b2e4-7200c88a058f">
+
+
 
