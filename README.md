@@ -1,6 +1,6 @@
 # Temples
 
-Temples is a framework for building onchain applications. It is written in the Rust language.It consists of two parts, one for Storage and one for World.
+Temples is a framework for building onchain applications. It is written in the Rust language.It consists of two parts, one for Schema and one for NexCore.
 
 ## Schema
 A fully chained ORM. 
