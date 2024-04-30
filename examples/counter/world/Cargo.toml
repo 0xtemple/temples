@@ -5,7 +5,10 @@ edition = "2021"
 
 [dependencies]
 gstd = { workspace = true }
-gmeta = { workspace = true }
+gmeta = { workspace = true, features = ["codegen"] }
 parity-scale-codec = { workspace = true }
 scale-info = { workspace = true }
 temple-types = { workspace = true }
+
+[build-dependencies]
+gear-wasm-builder = { workspace = true, features = ["metawasm"] }

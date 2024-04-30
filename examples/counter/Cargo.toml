@@ -9,7 +9,6 @@ gmeta = { workspace = true }
 temple-storage = { workspace = true }
 temple-types = { workspace = true }
 counter-world = { path = "world" }
-counter-state = { path = "state" }
 counter-components = { path = "components" }
 counter-systems = { path = "systems" }
 
@@ -18,4 +17,4 @@ gtest = { workspace = true }
 
 [build-dependencies]
 counter-world = { path = "world" }
-gear-wasm-builder = { workspace = true }
+gear-wasm-builder = { workspace = true, features = ["metawasm"] }
