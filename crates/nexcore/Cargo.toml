@@ -1,0 +1,18 @@
+[package]
+name = "temples-nexcore"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
+gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
+temple-types = { path = "../types" }
+nexcore-metadata = { path = "metadata" }
+nexcore-io = { path = "io" }
+
+[dev-dependencies]
+gtest = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
+
+[build-dependencies]
+nexcore-metadata = { path = "metadata" }
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1", features = ["metawasm"] }

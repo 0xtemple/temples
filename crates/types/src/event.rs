@@ -1,4 +1,4 @@
-use gstd::{ActorId, Decode, Encode, String, Vec};
+use gstd::{ActorId, Decode, Encode, String, TypeInfo, Vec};
 
 #[derive(Clone, Debug)]
 pub struct WorldSpawned {
@@ -28,4 +28,13 @@ pub struct ComponentSetRecord {
 pub struct ComponentDelRecord {
     pub component_id: [u8; 32],
     pub key: Vec<u8>,
+}
+
+#[derive(Debug, Encode, Decode, TypeInfo)]
+#[codec(crate = gstd::codec)]
+#[scale_info(crate = gstd::scale_info)]
+pub enum NexCoreEvent {
+    SetRecordSuccess,
+    DelRecordSuccess(u32),
+    GetRecordSuccess(u32),
 }

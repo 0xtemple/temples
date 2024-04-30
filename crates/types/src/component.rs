@@ -1,7 +1,7 @@
 use gstd::{Decode, Encode, String, TypeInfo, Vec};
 
 #[derive(Debug, Clone, Encode, Decode, TypeInfo)]
-pub enum ComponentType {
+pub enum StorageType {
     Onchain,
     Offchain,
 }
@@ -13,5 +13,5 @@ pub struct ComponentMetadata {
     pub key_types: Vec<String>,
     pub value_names: Vec<String>,
     pub value_types: Vec<String>,
-    pub ty: ComponentType,
+    pub ty: StorageType,
 }

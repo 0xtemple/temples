@@ -11,6 +11,7 @@ members = [
     "crates/derive",
     "crates/types",
     "crates/storage",
+    "crates/nexcore",
     "examples/counter",
     "tests",
 ]
