@@ -1,5 +1,7 @@
 use gstd::{ActorId, Decode, Encode, String, TypeInfo, Vec};
 
+use crate::schema::SchemaMetadata;
+
 #[derive(Clone, Debug)]
 pub struct WorldSpawned {
     pub caller: ActorId,
@@ -34,7 +36,8 @@ pub struct ComponentDelRecord {
 #[codec(crate = gstd::codec)]
 #[scale_info(crate = gstd::scale_info)]
 pub enum NexCoreEvent {
-    SetRecordSuccess,
-    DelRecordSuccess(u32),
-    GetRecordSuccess(u32),
+    RegisterSchemaSuccess([u8; 32], SchemaMetadata),
+    SetRecordSuccess([u8; 32], Vec<u8>, Vec<u8>),
+    DelRecordSuccess([u8; 32], Vec<u8>),
+    GetRecordSuccess(Vec<u8>),
 }

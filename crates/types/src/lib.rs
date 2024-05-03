@@ -2,9 +2,9 @@
 extern crate alloc;
 
 pub mod action;
-pub mod component;
 pub mod event;
 pub mod primitive;
+pub mod schema;
 pub mod system;
 pub mod utils;
 pub mod world;

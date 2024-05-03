@@ -7,8 +7,8 @@ edition = "2021"
 gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
 gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
 temple-types = { path = "../types" }
+temple-storage = { path = "../storage" }
 nexcore-metadata = { path = "metadata" }
-nexcore-io = { path = "io" }
 
 [dev-dependencies]
 gtest = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }

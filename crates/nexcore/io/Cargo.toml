@@ -1,9 +1,0 @@
-[package]
-name = "nexcore-io"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
-gmeta = { git = "https://github.com/gear-tech/gear", tag = "v1.1.1" }
-parity-scale-codec = { version = "3", default-features = false }

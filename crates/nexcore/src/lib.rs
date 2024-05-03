@@ -1,8 +1,6 @@
 #![no_std]
 
 use gstd::msg;
-use nexcore_io::SCHEMA1;
-use nexcore_metadata::{StateQuery, StateReply};
 use temple_types::action::SystemAction;
 pub use temple_types::event::NexCoreEvent;
 
@@ -10,36 +8,27 @@ pub use temple_types::event::NexCoreEvent;
 async fn main() {
     let action: SystemAction = msg::load().expect("Unable to load the system action");
     match action {
-        SystemAction::SetRecord(key, value) => {
-            let schema = unsafe { SCHEMA1.get_or_insert(Default::default()) };
-            schema.insert(key, value);
-            msg::reply(NexCoreEvent::SetRecordSuccess, 0)
-                .expect("Error during replying with `NFTEvent::Owner`");
+        SystemAction::RegisterSchema(shcema_id, schema_metadata) => {
+            msg::reply(
+                NexCoreEvent::RegisterSchemaSuccess(shcema_id, schema_metadata),
+                0,
+            )
+            .expect("Error during replying with `NexCoreEvent::RegisterSchemaSuccess`");
         }
-        SystemAction::DelRecord(key) => {
-            let schema = unsafe { SCHEMA1.get_or_insert(Default::default()) };
-            let value = schema.remove(&key).unwrap();
-            msg::reply(NexCoreEvent::DelRecordSuccess(value), 0)
-                .expect("Error during replying with `NFTEvent::Owner`");
+        SystemAction::SetRecord(shcema_id, key, value) => {
+            temple_storage::set(shcema_id.clone(), key.clone(), value.clone());
+            msg::reply(NexCoreEvent::SetRecordSuccess(shcema_id, key, value), 0)
+                .expect("Error during replying with `NexCoreEvent::SetRecordSuccess`");
         }
-        SystemAction::GetRecord(key) => {
-            let schema = unsafe { SCHEMA1.get_or_insert(Default::default()) };
-            let value = schema.get(&key).unwrap();
-            msg::reply(NexCoreEvent::GetRecordSuccess(*value), 0)
-                .expect("Error during replying with `NFTEvent::Owner`");
+        SystemAction::DelRecord(shcema_id, key) => {
+            temple_storage::remove(&shcema_id, &key);
+            msg::reply(NexCoreEvent::DelRecordSuccess(shcema_id, key), 0)
+                .expect("Error during replying with `NexCoreEvent::DelRecord`");
         }
-    }
-}
-
-#[no_mangle]
-extern fn state() {
-    let query: StateQuery = msg::load().expect("Unable to load the state query");
-    match query {
-        StateQuery::GetRecord(key) => {
-            let schema = unsafe { SCHEMA1.get_or_insert(Default::default()) };
-            schema.get(&key).unwrap();
-            msg::reply(StateReply::Record(*schema.get(&key).unwrap()), 0)
-                .expect("Unable to share the state");
+        SystemAction::GetRecord(shcema_id, key) => {
+            let value = temple_storage::get(&shcema_id, &key);
+            msg::reply(NexCoreEvent::GetRecordSuccess(value), 0)
+                .expect("Error during replying with `NexCoreEvent::GetRecordSuccess`");
         }
     }
 }
