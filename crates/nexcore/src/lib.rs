@@ -8,12 +8,10 @@ pub use temple_types::event::NexCoreEvent;
 async fn main() {
     let action: SystemAction = msg::load().expect("Unable to load the system action");
     match action {
-        SystemAction::RegisterSchema(shcema_id, schema_metadata) => {
-            msg::reply(
-                NexCoreEvent::RegisterSchemaSuccess(shcema_id, schema_metadata),
-                0,
-            )
-            .expect("Error during replying with `NexCoreEvent::RegisterSchemaSuccess`");
+        SystemAction::RegisterSchema(schema_id, metadata) => {
+            temple_storage::register(schema_id, metadata.clone());
+            msg::reply(NexCoreEvent::RegisterSchemaSuccess(schema_id, metadata), 0)
+                .expect("Error during replying with `NexCoreEvent::RegisterSchemaSuccess`");
         }
         SystemAction::SetRecord(shcema_id, key, value) => {
             temple_storage::set(shcema_id.clone(), key.clone(), value.clone());
