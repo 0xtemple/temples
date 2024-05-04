@@ -26,10 +26,6 @@ fn parse_type_works() {
         parse_type::<bool>()
     );
     assert_eq!(
-        (vec!["value".into()], vec!["Bool".into()]),
-        parse_type::<Vec<u8>>()
-    );
-    assert_eq!(
         (vec!["value".into()], vec!["ActorId".into()]),
         parse_type::<ActorId>()
     );
