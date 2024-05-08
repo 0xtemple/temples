@@ -14,12 +14,10 @@ impl Default for SchemaType {
 
 #[derive(Debug, Clone, Encode, Decode, Default, TypeInfo)]
 pub struct SchemaMetadata {
-    pub name: String,
     pub key_names: Vec<String>,
     pub key_types: Vec<String>,
     pub value_names: Vec<String>,
     pub value_types: Vec<String>,
-    pub ty: SchemaType,
 }
 
 #[derive(Debug, Clone, Encode, Decode, Default, TypeInfo)]

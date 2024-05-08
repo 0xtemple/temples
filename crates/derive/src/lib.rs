@@ -1,211 +1,249 @@
 #![no_std]
 
+extern crate alloc;
+use alloc::string::{String, ToString};
+use alloc::vec;
 use gstd::Vec;
+use parity_scale_codec::Encode;
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{Data, DeriveInput, Fields};
+use proc_macro2::Ident;
+use quote::{quote, ToTokens};
+use syn::spanned::Spanned;
+use syn::token::Struct;
+use syn::{
+    parse, parse_macro_input, Attribute, Data, DataStruct, DeriveInput, Fields, FieldsNamed, LitStr,
+};
+use temple_types::resource::{Resource, ResourceType};
 
-#[proc_macro_derive(StorageValue)]
-pub fn storage_value(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(Schema, attributes(type_id, namespace, key))]
+pub fn schema(input: TokenStream) -> TokenStream {
     env_logger::init();
     // Parse the input tokens into a syntax tree
+    // let args = syn::parse_macro_input!(args as AttributeArgs);
     let input = syn::parse_macro_input!(input as DeriveInput);
+    // log::debug!("{:#?}", input.attrs);
 
     // Get the name of the struct
     let struct_name = &input.ident;
 
-    // Get fields of the struct
-    let fields = match input.data {
-        Data::Struct(ref data) => match data.fields {
-            Fields::Named(ref fields) => &fields.named,
-            _ => {
-                panic!("DebugPrint only supports named fields in structs");
-            }
-        },
-        _ => {
-            panic!("DebugPrint only supports structs");
-        }
+    let struct_name_string = &input.ident.to_string();
+    let (namespace_string, type_id_string) = parse_args(&input.attrs);
+
+    let fields = if let Data::Struct(DataStruct {
+        fields: Fields::Named(FieldsNamed { named: ref n, .. }),
+        ..
+    }) = input.data
+    {
+        n
+    } else {
+        panic!("StorageValue only supports structs");
     };
 
-    // Get field names and types and convert them to strings
-    let (field_names, field_types) = fields
-        .iter()
-        .map(|field| {
-            let field_name = field.ident.as_ref().expect("Expected field name");
-            let field_type = &field.ty;
-            (
-                quote! { stringify!(#field_name).to_string() },
-                quote! { stringify!(#field_type).to_string() },
-            )
-        })
-        .unzip::<_, _, Vec<quote::__private::TokenStream>, Vec<quote::__private::TokenStream>>();
+    let mut key_field_idents: Vec<_> = vec![];
+    let mut key_field_tys: Vec<_> = vec![];
+    let mut field_idents: Vec<_> = vec![];
+    let mut field_tys: Vec<_> = vec![];
 
-    let gen = quote! {
+    fields.iter().for_each(|f| {
+        let is_key = f.attrs.iter().any(|attr| attr.path.is_ident("key"));
+        if is_key {
+            key_field_idents.push(f.ident.as_ref().unwrap());
+            key_field_tys.push(&f.ty);
+        } else {
+            field_idents.push(f.ident.as_ref().unwrap());
+            field_tys.push(&f.ty);
+        }
+    });
+
+    let mut key_names: Vec<_> = vec![];
+    let mut key_types: Vec<_> = vec![];
+    let mut field_names: Vec<_> = vec![];
+    let mut field_types: Vec<_> = vec![];
+
+    fields.iter().for_each(|f| {
+        let is_key = f.attrs.iter().any(|attr| attr.path.is_ident("key"));
+        let ident = f.ident.as_ref().unwrap();
+        let ty = &f.ty;
+        if is_key {
+            key_names.push(quote! { stringify!(#ident).to_string() });
+            key_types.push(quote! { stringify!(#ty).to_string() });
+        } else {
+            field_names.push(quote! { stringify!(#ident).to_string() });
+            field_types.push(quote! { stringify!(#ty).to_string() });
+        }
+    });
+
+    let mut gen = quote! {
         impl #struct_name {
-            pub fn component_id() -> [u8;32] {
-                let mut component_id = vec![0,0];
-                let mut schema_name_bytes = stringify!(#struct_name).as_bytes().to_vec();
-                schema_name_bytes.resize(30, 0);
-                component_id.extend(&schema_name_bytes);
-                let component_id:[u8;32] = component_id.try_into().expect("Failed");
-                component_id
+            pub fn resource_id() -> [u8;32] {
+                let mut type_id = temple_types::resource::ResourceType::from(#type_id_string);
+                let resource_type = temple_types::resource::Resource::new(#namespace_string, #struct_name_string, type_id);
+                resource_type.encode().try_into().expect("Failed to encode")
             }
 
-            pub fn metadata() -> ComponentMetadata  {
-                ComponentMetadata {
-                    name: stringify!(#struct_name).to_string(),
-                    key_names: vec![],
-                    key_types: vec![],
+            pub fn metadata() -> SchemaMetadata {
+                SchemaMetadata {
+                    key_names: vec![#(#key_names),*],
+                    key_types: vec![#(#key_types),*],
                     value_names: vec![#(#field_names),*],
                     value_types: vec![#(#field_types),*],
-                    ty: temple_types::component::ComponentType::Onchain,
                 }
             }
 
-             pub fn register() {
-                let temple_world_storage =
-                    unsafe { temple_storage::io::TEMPLE_WORLD_STORAGE.get_or_insert(Default::default()) };
-                let metadata = Self::metadata();
-                temple_world_storage.register_component(&metadata.name, &metadata);
-                temple_storage::emitter::emit_register_event(
-                    Self::component_id(),
-                    metadata.key_names,
-                    metadata.key_types,
-                    metadata.value_names,
-                    metadata.value_types,
+             pub async fn register(nexcore: gstd::ActorId) {
+                let resource_id = Self::resource_id();
+                let schema_metadata = Self::metadata();
+                gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                    nexcore,
+                    temple_types::action::SystemAction::RegisterSchema {
+                0: resource_id,
+                1: schema_metadata,
+            },
+            0,
+            0,
+        )
+            .expect("Error in async message to Mtk contract")
+            .await
+            .expect("Error in async message to Mtk contract");
+            }
+
+            pub async fn get(nexcore: gstd::ActorId) -> Self {
+                let result = gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                    nexcore,
+                    temple_types::action::SystemAction::GetRecord {
+                        0: Self::resource_id(),
+                        1: vec![],
+                    },
+                    0,
+                    0,
                 )
+                    .expect("Error in async message to Mtk contract")
+                    .await
+                    .expect("CONCERT: Error getting balances from the contract");
+                if let temple_types::event::NexCoreEvent::GetRecordSuccess(value) = result {
+                    Self::decode(&mut &value[..]).expect("Decode failed")
+                } else {
+                    Self::default()
+                }
             }
 
-            pub fn get() -> Self {
-                let temple_storage_value =
-                    unsafe { temple_storage::io::TEMPLE_STORAGE_VALUE.get_or_insert(Default::default()) };
-                Self::decode(
-                    &mut &temple_storage_value
-                        .get(&Self::component_id())
-                        .unwrap_or(&Vec::new())[..],
-                ).unwrap_or(Default::default())
-            }
-
-            pub fn set(value: Self) {
-                let temple_storage_value =
-                    unsafe { temple_storage::io::TEMPLE_STORAGE_VALUE.get_or_insert(Default::default()) };
-                let component_id = Self::component_id();
-                let component_data = value.encode();
-                temple_storage_value.insert(component_id, component_data.clone());
-                temple_storage::emitter::emit_set_event(component_id, vec![], component_data);
+            pub async fn set(nexcore: gstd::ActorId, value: Self) {
+                gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                    nexcore,
+                    temple_types::action::SystemAction::SetRecord {
+                        0: Self::resource_id(),
+                        1: vec![],
+                        2: value.encode()
+                    },
+                    0,
+                    0,
+                )
+                    .expect("Error in async message to Mtk contract")
+                    .await
+                    .expect("CONCERT: Error getting balances from the contract");
             }
         }
     };
+    if !key_field_idents.is_empty() {
+        gen = quote! {
+            impl #struct_name {
+                pub fn resource_id() -> [u8;32] {
+                    let mut type_id = temple_types::resource::ResourceType::from(#type_id_string);
+                    let resource_type = temple_types::resource::Resource::new(#namespace_string, #struct_name_string, type_id);
+                    resource_type.encode().try_into().expect("Failed to encode")
+                }
+
+                pub fn metadata() -> SchemaMetadata {
+                    SchemaMetadata {
+                        key_names: vec![#(#key_names),*],
+                        key_types: vec![#(#key_types),*],
+                        value_names: vec![#(#field_names),*],
+                        value_types: vec![#(#field_types),*],
+                    }
+                }
+
+                 pub async fn register(nexcore: gstd::ActorId) {
+                    let resource_id = Self::resource_id();
+                    let schema_metadata = Self::metadata();
+                    gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                        nexcore,
+                        temple_types::action::SystemAction::RegisterSchema {
+                    0: resource_id,
+                    1: schema_metadata,
+                },
+                0,
+                0,
+            )
+                .expect("Error in async message to Mtk contract")
+                .await
+                .expect("Error in async message to Mtk contract");
+                }
+
+                pub async fn get(nexcore: gstd::ActorId, key: (#(#key_field_tys),*)) -> Self {
+                    let result = gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                        nexcore,
+                        temple_types::action::SystemAction::GetRecord {
+                            0: Self::resource_id(),
+                            1: key.encode(),
+                        },
+                        0,
+                        0,
+                    )
+                        .expect("Error in async message to Mtk contract")
+                        .await
+                        .expect("CONCERT: Error getting balances from the contract");
+                    if let temple_types::event::NexCoreEvent::GetRecordSuccess(value) = result {
+                        Self::decode(&mut &value[..]).expect("Decode failed")
+                    } else {
+                        Self::default()
+                    }
+                }
+
+                pub async fn set(nexcore: gstd::ActorId, key: (#(#key_field_tys),*), value: Self) {
+                    gstd::msg::send_for_reply_as::<_, temple_types::event::NexCoreEvent>(
+                        nexcore,
+                        temple_types::action::SystemAction::SetRecord {
+                            0: Self::resource_id(),
+                            1: key.encode(),
+                            2: value.encode()
+                        },
+                        0,
+                        0,
+                    )
+                        .expect("Error in async message to Mtk contract")
+                        .await
+                        .expect("CONCERT: Error getting balances from the contract");
+                }
+            }
+        };
+    }
     gen.into()
 }
 
-// #[proc_macro_derive(StorageValue,attributes(key))]
-// pub fn storage_value(input: TokenStream) -> TokenStream {
-//     env_logger::init();
-//     // Parse the input tokens into a syntax tree
-//     let input = syn::parse_macro_input!(input as DeriveInput);
-//
-//     // Get the name of the struct
-//     let struct_name = &input.ident;
-//
-//     // Get fields of the struct
-//     let fields = match input.data {
-//         Data::Struct(ref data) => match data.fields {
-//             Fields::Named(ref fields) => &fields.named,
-//             _ => {
-//                 panic!("DebugPrint only supports named fields in structs");
-//             }
-//         },
-//         _ => {
-//             panic!("DebugPrint only supports structs");
-//         }
-//     };
-//     let field_prints = fields.iter().map(|field| {
-//         let field_name = field.ident.as_ref().expect("Expected field name");
-//         let field_type = &field.ty;
-//         quote! {
-//             println!("Field {}: {:?}", stringify!(#field_name), stringify!(#field_type));
-//         }
-//     });
-//
-//     // Get field names with #[key] attribute
-//     let key_field_names = fields
-//         .iter()
-//         .filter_map(|field| {
-//             for attr in &field.attrs {
-//                 if attr.path().is_ident("key") {
-//                     return field.ident.as_ref().map(|ident| ident.to_string());
-//                 }
-//             }
-//             None
-//         })
-//         .collect::<Vec<String>>();
-//     debug!("-------{:?}", key_field_names);
-//
-//
-//
-//     // Get field names and types and convert them to strings
-//     let (field_names, field_types) = fields
-//         .iter()
-//         .map(|field| {
-//             let field_name = field.ident.as_ref().expect("Expected field name");
-//             let field_type = &field.ty;
-//             (quote! { stringify!(#field_name).to_string() }, quote! { stringify!(#field_type).to_string() })
-//         })
-//         .unzip::<_, _, Vec<quote::__private::TokenStream>, Vec<quote::__private::TokenStream>>();
-//
-//     let gen = quote! {
-//         impl StorageValue for #struct_name {
-//             fn hello_macro() {
-//                 println!("{:?}", stringify!(#struct_name).encode());
-//                 println!("Hello, Macro! My name is {}!", stringify!(#struct_name));
-//                  #( #field_prints )*
-//             }
-//
-//             fn component_id() -> [u8;32] {
-//                 let mut component_id = vec![0,0];
-//                 let mut schema_name_bytes = stringify!(#struct_name).as_bytes().to_vec();
-//                 schema_name_bytes.resize(30, 0);
-//                 component_id.extend(&schema_name_bytes);
-//                 let component_id:[u8;32] = component_id.try_into().expect("Failed");
-//                 component_id
-//             }
-//
-//             fn metadata() -> ComponentMetadata  {
-//                    println!("{:?}", stringify!(#struct_name).to_string());
-//                 println!("{:?}", vec![#(#field_names),*]);
-//                 println!("{:?}", vec![#(#field_types),*]);
-//
-//                 ComponentMetadata {
-//                     name: stringify!(#struct_name).to_string(),
-//                     key_names: vec![],
-//                     key_types: vec![],
-//                     value_names: vec![#(#field_names),*],
-//                     value_types: vec![#(#field_types),*],
-//                     ty: temple_types::component::ComponentType::Onchain,
-//                 }
-//             }
-//
-//              fn get_key_fields() -> Vec<String> {
-//                 vec![#((#key_field_names).to_string()),*]
-//                 // #key_field_names
-//             }
-//
-//             pub fn get(#(#key_field_names: String),*) {
-//                 println!("{:?}", #(#key_field_names),*);
-//             }
-//         }
-//     };
-//     gen.into()
-//
-// }
-//
-// fn has_key_attribute(attrs: &Vec<Attribute>) -> bool {
-//     attrs.iter().any(|attr| {
-//         debug!("-------{:?}", attr.path());
-//         if  attr.path().is_ident("key") {
-//             return true;
-//         }
-//         false
-//     })
-// }
+fn parse_args(attr: &Vec<Attribute>) -> (String, String) {
+    let mut namespace = Ident::new("Root", attr.first().span());
+    let mut type_id = Ident::new("Onchain", attr.first().span());
+    attr.iter().for_each(|attr| {
+        if let Some(ident) = attr.path.get_ident() {
+            if ident == "type_id" {
+                attr.tokens.to_token_stream().into_iter().for_each(|token| {
+                    if let proc_macro2::TokenTree::Group(g) = token {
+                        log::debug!("{}", g.stream().to_string());
+                        let type_id_value = g.stream().to_string();
+                        type_id = Ident::new(&type_id_value, g.span());
+                    }
+                });
+            } else if ident == "namespace" {
+                attr.tokens.to_token_stream().into_iter().for_each(|token| {
+                    if let proc_macro2::TokenTree::Group(g) = token {
+                        let namespace_value = g.stream().to_string();
+                        namespace = Ident::new(&namespace_value, g.span());
+                    }
+                });
+            }
+        } else {
+            panic!("The ident is not support.")
+        }
+    });
+    (namespace.to_string(), type_id.to_string())
+}

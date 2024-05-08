@@ -11,6 +11,18 @@ pub enum ResourceType {
     System,
 }
 
+impl ResourceType {
+    pub fn from(type_id: &str) -> Self {
+        match type_id {
+            "Onchain" => Self::OnchainSchema,
+            "Offchain" => Self::OffchainSchema,
+            "Namespace" => Self::Namespace,
+            "System" => Self::System,
+            _ => panic!("This TypeId is not supported."),
+        }
+    }
+}
+
 impl Default for ResourceType {
     fn default() -> Self {
         Self::OnchainSchema
