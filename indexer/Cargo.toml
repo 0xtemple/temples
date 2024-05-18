@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+hex-literal = "0.4.1"
+gsdk = "1.4.1"
+tokio = { version = "1", features = ["full"] }
+hex = "0.4.3"
+log = "0.4.21"
