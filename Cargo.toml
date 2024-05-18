@@ -12,6 +12,7 @@ members = [
     "crates/types",
     "crates/storage",
     "crates/nexcore",
+    "indexer",
     "examples/counter",
     "tests",
 ]
