@@ -7,7 +7,6 @@ edition = "2021"
 gstd = { workspace = true }
 gmeta = { workspace = true }
 test-metadata = { path = "metadata" }
-test-components = { path = "components" }
 temple-storage = { workspace = true }
 temple-types = { workspace = true }
 scale-info = { workspace = true }

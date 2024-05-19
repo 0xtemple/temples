@@ -12,7 +12,7 @@ async fn main() -> Result<(), Error> {
     // let api = Api::new(Some("ws://localhost:9944")).await?;
     // let alice = api.clone().signer("//Alice", None)?;
     // let my_address = AccountId32::new(hex!["aea48c27a7f703a7f8acedf15b43e8fcbad0b7846e5fe32a0b2b75cb81d75306"]);
-    // let tx = alice.calls.transfer_keep_alive(my_address, 1000000000000).await?;
+    // let tx = alice.calls.transfer_keep_alive(my_address, 10000000000000).await?;
     // let events = tx.fetch_events().await?;
     // for ev in events.iter() {
     //     let ev = ev?;
@@ -29,7 +29,7 @@ async fn main() -> Result<(), Error> {
     // }
 
     let api = Api::new(Some("ws://localhost:9944")).await?;
-    let mut events = api.finalized_events().await?;
+    let mut events = api.events().await?;
 
     while let Some(Ok(evs)) = events.next().await {
         println!("{:?}", api.gear_block_number(None).await?);

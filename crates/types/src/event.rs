@@ -1,4 +1,4 @@
-use gstd::{ActorId, Decode, Encode, String, TypeInfo, Vec};
+use gstd::{msg, ActorId, Decode, Encode, String, TypeInfo, Vec};
 
 use crate::schema::SchemaMetadata;
 
@@ -40,4 +40,8 @@ pub enum NexCoreEvent {
     SetRecordSuccess([u8; 32], Vec<u8>, Vec<u8>),
     DelRecordSuccess([u8; 32], Vec<u8>),
     GetRecordSuccess(Vec<u8>),
+}
+
+pub fn emit_event<T: Encode>(value: T) {
+    msg::send(ActorId::default(), value, 0).expect("Sending message failed");
 }

@@ -1,10 +1,12 @@
 #![no_std]
 
+pub mod nexcore_manager;
+
 use gstd::collections::{BTreeMap, HashMap};
-use gstd::Decode;
 use gstd::Encode;
 use gstd::TypeInfo;
 use gstd::Vec;
+use gstd::{string::String, ActorId, Decode};
 use temple_types::schema::{Schema, SchemaMetadata};
 use temple_types::world::WorldMetadata;
 
@@ -12,9 +14,11 @@ pub static mut TEMPLE_WORLD_STORAGE: Option<WorldMetadata> = None;
 pub static mut TEMPLE_STORAGE_VALUE: Option<HashMap<[u8; 32], Vec<u8>>> = None;
 pub static mut TEMPLE_STORAGE_MAP: Option<BTreeMap<[u8; 32], BTreeMap<Vec<u8>, Vec<u8>>>> = None;
 
+pub type SchemaId = [u8; 32];
+
 #[derive(Debug, Clone, Encode, Decode, Default, TypeInfo)]
 pub struct Storage {
-    value: BTreeMap<[u8; 32], Schema>,
+    value: BTreeMap<SchemaId, Schema>,
 }
 
 pub static mut TEMPLES_STORAGE: Option<Storage> = None;

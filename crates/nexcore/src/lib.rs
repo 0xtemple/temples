@@ -13,18 +13,18 @@ async fn main() {
             msg::reply(NexCoreEvent::RegisterSchemaSuccess(schema_id, metadata), 0)
                 .expect("Error during replying with `NexCoreEvent::RegisterSchemaSuccess`");
         }
-        SystemAction::SetRecord(shcema_id, key, value) => {
-            temple_storage::set(shcema_id.clone(), key.clone(), value.clone());
-            msg::reply(NexCoreEvent::SetRecordSuccess(shcema_id, key, value), 0)
+        SystemAction::SetRecord(schema_id, key, value) => {
+            temple_storage::set(schema_id.clone(), key.clone(), value.clone());
+            msg::reply(NexCoreEvent::SetRecordSuccess(schema_id, key, value), 0)
                 .expect("Error during replying with `NexCoreEvent::SetRecordSuccess`");
         }
-        SystemAction::DelRecord(shcema_id, key) => {
-            temple_storage::remove(&shcema_id, &key);
-            msg::reply(NexCoreEvent::DelRecordSuccess(shcema_id, key), 0)
+        SystemAction::DelRecord(schema_id, key) => {
+            temple_storage::remove(&schema_id, &key);
+            msg::reply(NexCoreEvent::DelRecordSuccess(schema_id, key), 0)
                 .expect("Error during replying with `NexCoreEvent::DelRecord`");
         }
-        SystemAction::GetRecord(shcema_id, key) => {
-            let value = temple_storage::get(&shcema_id, &key);
+        SystemAction::GetRecord(schema_id, key) => {
+            let value = temple_storage::get(&schema_id, &key);
             msg::reply(NexCoreEvent::GetRecordSuccess(value), 0)
                 .expect("Error during replying with `NexCoreEvent::GetRecordSuccess`");
         }

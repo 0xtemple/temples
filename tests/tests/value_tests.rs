@@ -2,7 +2,6 @@ use gmeta::Type;
 use gstd::{ActorId, TypeInfo};
 use gtest::{Program, System};
 use temple_types::event::ComponentRegistered;
-use test_components::value_struct::ValueData;
 
 // const v = ComponentRegistered {
 //     component_id: [],

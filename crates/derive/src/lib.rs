@@ -4,20 +4,15 @@ extern crate alloc;
 use alloc::string::{String, ToString};
 use alloc::vec;
 use gstd::Vec;
-use parity_scale_codec::Encode;
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::{quote, ToTokens};
 use syn::spanned::Spanned;
-use syn::token::Struct;
-use syn::{
-    parse, parse_macro_input, Attribute, Data, DataStruct, DeriveInput, Fields, FieldsNamed, LitStr,
-};
-use temple_types::resource::{Resource, ResourceType};
+use syn::{Attribute, Data, DataStruct, DeriveInput, Fields, FieldsNamed, LitStr};
 
 #[proc_macro_derive(Schema, attributes(type_id, namespace, key))]
 pub fn schema(input: TokenStream) -> TokenStream {
-    env_logger::init();
+    // env_logger::init();
     // Parse the input tokens into a syntax tree
     // let args = syn::parse_macro_input!(args as AttributeArgs);
     let input = syn::parse_macro_input!(input as DeriveInput);
@@ -105,6 +100,11 @@ pub fn schema(input: TokenStream) -> TokenStream {
             .expect("Error in async message to Mtk contract")
             .await
             .expect("Error in async message to Mtk contract");
+
+            temple_types::event::emit_event::<temple_types::event::NexCoreEvent>(temple_types::event::NexCoreEvent::RegisterSchemaSuccess {
+            0: resource_id,
+            1: Self::metadata(),
+        });
             }
 
             pub async fn get(nexcore: gstd::ActorId) -> Self {
@@ -141,6 +141,11 @@ pub fn schema(input: TokenStream) -> TokenStream {
                     .expect("Error in async message to Mtk contract")
                     .await
                     .expect("CONCERT: Error getting balances from the contract");
+                temple_types::event::emit_event::<temple_types::event::NexCoreEvent>(temple_types::event::NexCoreEvent::SetRecordSuccess {
+            0: Self::resource_id(),
+            1: vec![],
+            2: value.encode()
+        });
             }
         }
     };
@@ -177,6 +182,11 @@ pub fn schema(input: TokenStream) -> TokenStream {
                 .expect("Error in async message to Mtk contract")
                 .await
                 .expect("Error in async message to Mtk contract");
+
+            temple_types::event::emit_event::<temple_types::event::NexCoreEvent>(temple_types::event::NexCoreEvent::RegisterSchemaSuccess {
+            0: resource_id,
+            1: Self::metadata(),
+        });
                 }
 
                 pub async fn get(nexcore: gstd::ActorId, key: (#(#key_field_tys),*)) -> Self {
@@ -213,6 +223,12 @@ pub fn schema(input: TokenStream) -> TokenStream {
                         .expect("Error in async message to Mtk contract")
                         .await
                         .expect("CONCERT: Error getting balances from the contract");
+
+                           temple_types::event::emit_event::<temple_types::event::NexCoreEvent>(temple_types::event::NexCoreEvent::SetRecordSuccess {
+            0: Self::resource_id(),
+            1: key.encode(),
+            2: value.encode()
+        });
                 }
             }
         };

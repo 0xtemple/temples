@@ -6,15 +6,16 @@ edition = "2021"
 [dependencies]
 gstd = { workspace = true }
 gmeta = { workspace = true }
+parity-scale-codec = { workspace = true }
+temple-derive = { workspace = true }
 temple-storage = { workspace = true }
 temple-types = { workspace = true }
-counter-world = { path = "world" }
-counter-components = { path = "components" }
-counter-systems = { path = "systems" }
+counter-metadata = { path = "metadata" }
+hex-literal = "0.4.1"
 
 [dev-dependencies]
 gtest = { workspace = true }
 
 [build-dependencies]
-counter-world = { path = "world" }
+counter-metadata = { path = "metadata" }
 gear-wasm-builder = { workspace = true, features = ["metawasm"] }
